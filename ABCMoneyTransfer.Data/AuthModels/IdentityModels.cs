@@ -8,7 +8,13 @@ using System.Threading.Tasks;
 namespace ABCMoneyTransfer.Data.AuthModels
 {
     public class ApplicationUserRole : IdentityRole
-    { }
+    {
 
-    public class ApplicationUser : IdentityUser { }
+    }
+
+    public class ApplicationUser : IdentityUser
+    {
+
+        public string Name { get; set; } = null!;
+    }
 }
