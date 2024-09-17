@@ -1,0 +1,118 @@
+﻿@{
+    ViewData["Title"] = "Sender/Receiver";
+}
+
+<div id="app" v-pre v-cloak>
+    <q-card flat>
+        <q-toolbar dense class="bg-grey-2">
+            <q-toolbar-title>
+                Sender/Receiver
+            </q-toolbar-title>
+            <q-btn type="a" href="/user/new" icon="mdi-plus" label="New" size="sm" color="primary"></q-btn>
+        </q-toolbar>
+        <q-separator></q-separator>
+        <q-card-section>
+            <q-table dense class="data-table" dense :data="users" square row-key="name" :pagination="pagination" flat bordered>
+                <q-tr class="disable-hover" slot="header" slot-scope="props">
+                    <q-th class="text-left">Name</q-th>
+                    <q-th class="text-center">Address</q-th>
+                    <q-th class="text-center">Country</q-th>
+                    <q-th class="text-center">Sender</q-th>
+                    <q-th class="text-center">Receiver</q-th>
+                    <q-th class="text-center">Actions</q-th>
+                </q-tr>
+                <q-tr slot="body" slot-scope="props" :props="props">
+                    <q-td class="text-left">{{ props.row.username }}</q-td>
+                    <q-td class="text-center">{{ props.row.name }}</q-td>
+                    <q-td class="text-center">{{ props.row.role }}</q-td>
+
+                    <q-td class="text-center">
+                        <q-btn round size="xs" color="negative" icon="mdi-delete-circle-outline" v-on:click="onDelete(props.row.id, props.row.name)">
+                            <q-tooltip>
+                                Remove
+                            </q-tooltip>
+                        </q-btn>
+                    </q-td>
+                </q-tr>
+            </q-table>
+        </q-card-section>
+    </q-card>
+</div>
+
+@section scripts {
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    users: [],
+                    pagination: {
+                        rowsPerPage: 50
+                    },
+                };
+            },
+            methods: {
+                getAll: async function () {
+                    const vm = this;
+                    try {
+                        let response = await axios.get("/api/users");
+                        vm.users = response.data;
+                    } catch (ex) {
+                        vm.$handleError(ex);
+                    }
+                },
+                onSubmit: async function () {
+                    let vm = this;
+                    vm.$showLoader();
+                    vm.buttonSubmitting = true;
+                    try {
+                        let response = await axios.post("/api/auth/register-user", {
+                            Username: vm.user.username,
+                            Password: vm.user.password,
+                            Name: vm.user.name,
+                            RoleId: vm.selectedRole,
+                            ConfirmPassword: vm.user.confirmPassword
+                        });
+                        vm.$showSuccessMessage(response.data);
+                        vm.insertDialog = false;
+                        await vm.getAll();
+
+                    } catch (e) {
+
+                        vm.$handleError(e);
+                    }
+                    finally {
+
+                        vm.$hideLoader();
+                        vm.buttonSubmitting = false;
+                    }
+
+
+                },
+                onDelete: function (id, name) {
+                    let vm = this;
+                    Quasar.Dialog.create({
+                        title: 'Confirm',
+                        message: `Are you sure to delete the User ${name} ?`,
+                        cancel: true,
+                        persistent: true
+                    }).onOk(async () => {
+                        try {
+                            var response = await axios.post("/api/auth/unregister", { UserId: id });
+                            vm.$showSuccessMessage(response.data);
+                            vm.$reload();
+                        } catch (ex) {
+                            vm.$handleError(ex);
+                        }
+                    });
+                }
+            },
+            async mounted() {
+                let vm = this;
+                vm.$showLoader();
+                await vm.getAll();
+                vm.$hideLoader();
+            }
+        });
+    </script>
+}

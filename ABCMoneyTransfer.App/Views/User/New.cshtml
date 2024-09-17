@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "New User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="app" v-pre v-cloak>
+    <q-card flat>
+        <q-toolbar dense class="bg-grey-2">
+            <q-toolbar-title>
+                New User
+            </q-toolbar-title>
+            <q-btn type="a" href="/setting/users" icon="list" label="User List" size="sm" color="primary"></q-btn>
+        </q-toolbar>
+        <q-card-section>
+            <q-form v-on:submit="onNewUserFormSubmit">
+                <div class="row q-col-gutter-md">
+                    <div class="col-sm-4">
+                        <q-input label="First name *" v-model="user.firstName" square dense outlined
+                                 :rules="[ val => val && val.length > 0 || 'Required.']"></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Middle name" v-model="user.middleName" square dense outlined></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="last name" v-model="user.middleName" square dense outlined
+                                 :rules="[ val => val && val.length > 0 || 'Required.']"></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Address" v-model="user.address" square dense outlined></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Address" v-model="user.address" square dense outlined></q-input>
+                    </div>
+                </div>
+                <q-btn type="submit" label="Submit" :loading="userPosting" color="primary"></q-btn>
+            </q-form>
+        </q-card-section>
+    </q-card>
+</div>
+
+@section scripts {
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    userPosting: false,
+                    user: {},
+                    countries : []
+                };
+            },
+            methods: {
+                onNewUserFormSubmit: async function () {
+                    let vm = this;
+                    try {
+                        vm.userPosting = true;
+                        let response = await axios.post("/api/setting/user/new", vm.user);
+                        vm.userPosting = false;
+                        vm.$showSuccessMessage(response.data);
+                        vm.$redirect("/setting/users");
+                    } catch (ex) {
+                        vm.userPosting = false;
+                        vm.$handleError(ex);
+                    }
+                },
+                getAllCountries : async function() {
+                    let vm = this;
+                    try{
+                        let response = awa
+                    }catch(ex){
+                        vm.$handleError(ex);
+                    }
+                }
+
+            },
+            async mounted() {
+
+            }
+        });
+    </script>
+}
+
+

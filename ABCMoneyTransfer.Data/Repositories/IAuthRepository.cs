@@ -149,8 +149,12 @@ public class AuthRepository(
 
     public async Task UnRegisterUser(string id)
     {
-        var user = await userManager.FindByIdAsync(id)
-                   ?? throw new InvalidOperationException($"User with ID '{id}' not found.");
+        ApplicationUser user = await userManager.FindByIdAsync(id) ?? throw new InvalidOperationException($"User with ID '{id}' not found.");
+
+        string userName = GeneralUtility.GetUsernameFromClaim(httpContextAccessor);
+
+        if (user.UserName == userName)
+            throw new InvalidOperationException("You cannot delete yourself.");
 
         var roles = await userManager.GetRolesAsync(user);
         foreach (var role in roles)

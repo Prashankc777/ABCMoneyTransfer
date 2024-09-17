@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using ABCMoneyTransfer.Data.Repositories;
+using Microsoft.Identity.Client;
 
 namespace ABCMoneyTransfer.Data
 {
@@ -49,7 +50,10 @@ namespace ABCMoneyTransfer.Data
                 options.LoginPath = "/auth/login";
                 options.SlidingExpiration = true;
             });
+
             services.AddTransient<IAuthRepository, AuthRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<Igenerare, GeneralController>();
         }
     }
 }

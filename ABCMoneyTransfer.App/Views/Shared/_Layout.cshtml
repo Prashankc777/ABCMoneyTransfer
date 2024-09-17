@@ -17,7 +17,7 @@
                 <q-toolbar>
                     <q-btn dense flat round icon="menu" v-on:click="left = !left"></q-btn>
                     <q-toolbar-title>
-                       ABC Money Transfer
+                        ABC Money Transfer
                     </q-toolbar-title>
                     <q-btn-dropdown outline flat class="text-white" color="primary" icon="mdi-account-cog">
                         <q-list>
@@ -84,31 +84,21 @@
                         <q-item-section>Dashboard</q-item-section>
 
                     </q-item>
-                    <q-item clickable tag="a" href="/user-management">
-                        <q-item-section avatar>
-                            <q-icon color="primary" name="people" />
-                        </q-item-section>
-                        <q-item-section>User Management</q-item-section>
+                    <q-expansion-item v-model="expanded" expand-separator
+                                      icon="people"
+                                      label="User"
+                                      group="somegroup" dense header-class="text-primary">
+                        <q-list>
+                            <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/user/list">
+                                <q-item-section>Sender/Receiver</q-item-section>
+                            </q-item>
+                            <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/user-management">
+                                <q-item-section>Registered</q-item-section>
+                            </q-item>
 
-                    </q-item>
-                       @*  <q-expansion-item v-model="expanded" expand-separator
-                                          icon="settings"
-                                          label="Setting"
-                                          group="somegroup" dense header-class="text-primary">
-                            <q-list>
-                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/setting/users">
-                                    <q-item-section>User Management</q-item-section>
-                                </q-item>
-                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/setting/parking-types">
-                                    <q-item-section>Parking Type</q-item-section>
-                                </q-item>
-                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/setting/parking-rules">
-                                    <q-item-section>Parking Rule</q-item-section>
-                                </q-item>
+                        </q-list>
+                    </q-expansion-item>
 
-                            </q-list>
-                        </q-expansion-item> *@
-                    
 
 
                 </q-list>

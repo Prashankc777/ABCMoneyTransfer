@@ -26,5 +26,21 @@ namespace ABCMoneyTransfer.Data.Utilities
             return DateTime.UtcNow.AddMinutes(345);
         }
 
+        public static string CombineName (string firstName, string? middleName, string lastName)
+        {
+            string fullName = firstName;
+
+            // Add middle name if it's not null or empty
+            if (!string.IsNullOrWhiteSpace(middleName))
+            {
+                fullName += " " + middleName;
+            }
+
+            // Add last name
+            fullName += " " + lastName;
+
+            return fullName;
+        }
+
     }
 }
