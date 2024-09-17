@@ -17,7 +17,7 @@
                 <q-toolbar>
                     <q-btn dense flat round icon="menu" v-on:click="left = !left"></q-btn>
                     <q-toolbar-title>
-                        Parking Management
+                       ABC Money Transfer
                     </q-toolbar-title>
                     <q-btn-dropdown outline flat class="text-white" color="primary" icon="mdi-account-cog">
                         <q-list>
@@ -77,18 +77,21 @@
             </q-dialog>
             <q-drawer show-if-above v-model="left" side="left" bordered>
                 <q-list>
-                    @if (User.IsInRole("Admin"))
-                    {
+                    <q-item clickable tag="a" href="/">
+                        <q-item-section avatar>
+                            <q-icon color="primary" name="dashboard" />
+                        </q-item-section>
+                        <q-item-section>Dashboard</q-item-section>
 
+                    </q-item>
+                    <q-item clickable tag="a" href="/user-management">
+                        <q-item-section avatar>
+                            <q-icon color="primary" name="people" />
+                        </q-item-section>
+                        <q-item-section>User Management</q-item-section>
 
-                        <q-item clickable tag="a" href="/">
-                            <q-item-section avatar>
-                                <q-icon color="primary" name="dashboard" />
-                            </q-item-section>
-                            <q-item-section>Dashboard</q-item-section>
-
-                        </q-item>
-                        <q-expansion-item v-model="expanded" expand-separator
+                    </q-item>
+                       @*  <q-expansion-item v-model="expanded" expand-separator
                                           icon="settings"
                                           label="Setting"
                                           group="somegroup" dense header-class="text-primary">
@@ -104,47 +107,8 @@
                                 </q-item>
 
                             </q-list>
-                        </q-expansion-item>
-                        <q-item clickable tag="a" href="/blocks">
-                            <q-item-section avatar>
-                                <q-icon color="primary" name="add_road" />
-                            </q-item-section>
-                            <q-item-section>Block Management</q-item-section>
-
-                        </q-item>
-                        <q-item clickable tag="a" href="/slots">
-                            <q-item-section avatar>
-                                <q-icon color="primary" name="space_bar" />
-                            </q-item-section>
-                            <q-item-section>Slot Management</q-item-section>
-
-                        </q-item>
-                    }
-                    @if (User.IsInRole("Admin") || (User.IsInRole("User")))
-                    {
-                        <q-item clickable tag="a" href="/bookings">
-                            <q-item-section avatar>
-                                <q-icon color="primary" name="event_seat" />
-                            </q-item-section>
-                            <q-item-section>Booking Management</q-item-section>
-                        </q-item>
-                        <q-item clickable tag="a" href="/parking-management">
-                            <q-item-section avatar>
-                                <q-icon color="primary" name="mdi-parking" />
-                            </q-item-section>
-                            <q-item-section>Parking Management</q-item-section>
-                        </q-item>
-                        <q-expansion-item v-model="expanded" expand-separator
-                                          icon="report"
-                                          label="Report"
-                                          group="somegroup" dense header-class="text-primary">
-                            <q-list>
-                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/report/parking">
-                                    <q-item-section>Parking Report</q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-expansion-item>
-                    }
+                        </q-expansion-item> *@
+                    
 
 
                 </q-list>

@@ -1,0 +1,233 @@
+﻿@{
+    ViewData["Title"] = "Block Management";
+}
+
+<div id="app" v-pre v-cloak>
+    <q-card flat>
+        <q-toolbar dense class="bg-grey-2">
+            <q-toolbar-title>
+                User Management
+            </q-toolbar-title>
+            <q-btn type="a" icon="mdi-plus" label="New" size="sm" color="primary" v-on:Click="openInsertDialog"></q-btn>
+        </q-toolbar>
+        <q-separator></q-separator>
+        <q-card-section>
+            <q-table dense class="data-table" dense :data="users" square row-key="name" :pagination="pagination" flat bordered>
+                <q-tr class="disable-hover" slot="header" slot-scope="props">
+                    <q-th class="text-left">Username</q-th>
+                    <q-th class="text-center">Name</q-th>
+                    <q-th class="text-center">Role</q-th>
+                    <q-th class="text-center">Actions</q-th>
+                </q-tr>
+                <q-tr slot="body" slot-scope="props" :props="props">
+                    <q-td class="text-left">{{ props.row.username }}</q-td>
+                    <q-td class="text-center">{{ props.row.name }}</q-td>
+                    <q-td class="text-center">{{ props.row.role }}</q-td>
+
+                    <q-td class="text-center">
+                        <q-btn round size="xs" color="negative" icon="mdi-delete-circle-outline" v-on:click="onDelete(props.row.id, props.row.name)">
+                            <q-tooltip>
+                                Remove
+                            </q-tooltip>
+                        </q-btn>
+                    </q-td>
+                </q-tr>
+            </q-table>
+            <q-dialog v-model="insertDialog" persistent position="top">
+                <q-card square style="width: 600px;  max-width: 50vw;">
+                    <q-toolbar>
+                        <q-toolbar-title> Add User</q-toolbar-title>
+                        <q-btn color="primary" flat round dense icon="close" v-close-popup />
+                    </q-toolbar>
+                    <q-form v-on:submit="onSubmit">
+                        <q-card-section>
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12">
+                                    <q-input name="Name"
+                                             square dense outlined
+                                             v-model=user.name
+                                             label="Name *"
+                                             lazy-rules
+                                             :rules="[ val => val && val.length > 0 || ' Required']">
+                                    </q-input>
+                                </div>
+                                <div class="col-xs-12 col-md-12">
+                                    <q-input name="username"
+                                             square dense outlined
+                                             v-model="user.username"
+                                             label="username"
+                                             lazy-rules
+                                             :rules="[ val => val && val.length > 0 || 'Required']">
+
+                                    </q-input>
+                                </div>
+                                <div class="col-xs-12 col-md-12 q-mt-sm">
+                                    <q-input name="Password"
+                                             square dense outlined
+                                             v-model="user.password"
+                                             label="Password"
+                                             lazy-rules
+                                             type="password"
+                                             :rules="[ val => val && val.length > 0 || 'Required']">
+
+                                    </q-input>
+                                </div>
+                                <div class="col-xs-12 col-md-12 q-mt-sm">
+                                    <q-input name="Password"
+                                             square dense outlined
+                                             v-model="user.confirmPassword"
+                                             label="Confirm Password"
+                                             lazy-rules
+                                             type="password"
+                                             :rules="[ val => val && val.length > 0 || 'Required']">
+
+                                    </q-input>
+                                </div>
+                                <div class="col-xs-12 col-md-12 q-mt-sm">
+                                    <q-select label="Role *"
+                                              v-model="selectedRole"
+                                              :options="roles"
+                                              clearable
+                                              option-label="name"
+                                              emit-value
+                                              map-options
+                                              behavior="menu"
+                                              option-value="id"
+                                              input-debounce="0"
+                                              square dense outlined
+                                              lazy-rules
+                                              :rules="[val=>val !== null || 'required']">
+                                    </q-select>
+                                </div>
+
+                            </div>
+                            <div class="q-mt-md">
+                                <q-btn label="Submit" :loading="buttonSubmitting" type="submit" color="primary" />
+                            </div>
+                        </q-card-section>
+                    </q-form>
+
+                </q-card>
+            </q-dialog>
+
+
+
+
+        </q-card-section>
+    </q-card>
+</div>
+
+@section scripts {
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    users: [],
+                    pagination: {
+                        rowsPerPage: 50
+                    },
+                    buttonSubmitting: false,
+                    insertDialog: false,
+                    roles: [],
+                    user: {
+                        id: "",
+                        username: "",
+                        password: "",
+                        confirmPassword: "",
+                        name: "",
+                        role: ""
+                    },
+                    selectedRole: null,
+                };
+            },
+            methods: {
+                getAll: async function () {
+                    const vm = this;
+                    try {
+                        let response = await axios.get("/api/auth/users");
+                        vm.users = response.data;
+                    } catch (ex) {
+                        vm.$handleError(ex);
+                    }
+                },
+                getRoles: async function () {
+                    const vm = this;
+                    try {
+                        let response = await axios.get("api/auth/roles");
+                        vm.roles = response.data;
+                    } catch (ex) {
+                        vm.$handleError(ex);
+                    }
+                },
+                openInsertDialog: function () {
+                    const vm = this;
+                    vm.insertDialog = true;
+                    vm.user = {};
+
+
+                },
+                onSubmit: async function () {
+                    let vm = this;
+                    vm.$showLoader();
+                    vm.buttonSubmitting = true;
+                    try {
+                        let response = await axios.post("/api/auth/register-user", {
+                            Username: vm.user.username,
+                            Password: vm.user.password,
+                            Name: vm.user.name,
+                            RoleId: vm.selectedRole,
+                            ConfirmPassword: vm.user.confirmPassword
+                        });
+                        vm.$showSuccessMessage(response.data);
+                        vm.insertDialog = false;
+                        await vm.getAll();
+
+                    } catch (e) {
+
+                        vm.$handleError(e);
+                    }
+                    finally {
+
+                        vm.$hideLoader();
+                        vm.buttonSubmitting = false;
+                    }
+
+
+                },
+                openUpdateDialog: function (block) {
+                    const vm = this;
+                    vm.updateDialog = true;
+                    vm.block.id = block.id;
+                    vm.block.name = block.name;
+                    vm.block.alias = block.alias;
+                    vm.block.isActive = block.isActive;
+                },
+                onDelete: function (id, name) {
+                    let vm = this;
+                    Quasar.Dialog.create({
+                        title: 'Confirm',
+                        message: `Are you sure to delete the User ${name} ?`,
+                        cancel: true,
+                        persistent: true
+                    }).onOk(async () => {
+                        try {
+                            var response = await axios.post("/api/auth/unregister", { UserId: id });
+                            vm.$showSuccessMessage(response.data);
+                            vm.$reload();
+                        } catch (ex) {
+                            vm.$handleError(ex);
+                        }
+                    });
+                }
+            },
+            async mounted() {
+                let vm = this;
+                vm.$showLoader();
+                await vm.getAll();
+                await vm.getRoles();
+                vm.$hideLoader();
+            }
+        });
+    </script>
+}
