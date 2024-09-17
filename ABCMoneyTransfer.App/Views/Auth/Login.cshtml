@@ -1,0 +1,110 @@
+﻿@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@{ Layout = null; }
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+    <link href="@string.Format("https://cdn.jsdelivr.net/npm/@mdi/font@^5.0.0/css/materialdesignicons.min.css")" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.min.css" rel="stylesheet" type="text/css">
+    <title>Login Page</title>
+</head>
+
+<body style="background-color:#efefef;">
+    <div id="q-app" v-cloak>
+        <div class="row justify-center">
+            <div class="col-md-4">
+                <q-card square>
+                    <q-toolbar class="bg-primary text-white">
+                        <q-icon name="lock" size="sm"></q-icon>
+                        <q-toolbar-title>
+                            Please Login to continue...
+                        </q-toolbar-title>
+                    </q-toolbar>
+                    <q-card-section>
+                        <q-form ref="loginForm" v-on:submit="onLoginFormSubmit">
+                            @Html.AntiForgeryToken()
+                            <q-input label="Username" name="Username" v-model="user.username" square dense outlined class="q-mb-xs q-mt-xs"
+                                     :rules="[ val => val && val.length > 0 || 'Username cannot be empty.']">
+                                <template v-slot:prepend>
+                                    <q-icon name="mdi-account-circle-outline" />
+                                </template>
+                            </q-input>
+                            <q-input type="password" name="Password" v-model="user.password" label="Password" square dense outlined class="q-mb-xs"
+                                     :rules="[ val => val && val.length > 0 || 'Password cannot be empty.']">
+                                <template v-slot:prepend>
+                                    <q-icon name="mdi-lock" />
+                                </template>
+                            </q-input>
+                            <q-btn type="submit" color="primary" :loading="formSubmitting" label="Submit"></q-btn>
+                        </q-form>
+                    </q-card-section>
+                </q-card>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.quasarConfig = {
+            brand: {
+                //primary: '#e46262',
+            },
+            notify: {},
+            loading: {},
+            loadingBar: {},
+        }
+    </script>
+    <script src="@string.Format("https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js")"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="~/js/index.bundle.js"></script>
+    <script src="~/js/global.js"></script>
+    <script>
+        new Vue({
+            el: '#q-app',
+            data: function () {
+                return {
+                    title: 'Login Page',
+                    user: {},
+                    formSubmitting: false,
+                }
+            },
+            methods: {
+                onLoginFormSubmit: async function (evt) {
+                    let vm = this;
+                    try {
+                        vm.formSubmitting = true;
+                        let response = await axios.post("/api/auth/login", vm.user);
+                        vm.formSubmitting = false;
+                        vm.$showSuccessMessage("Login Successful");
+                        vm.$redirect(response.data);
+                    } catch (ex) {
+                        vm.formSubmitting = false;
+                        vm.$handleError(ex);
+                    }
+                }
+            },
+            mounted() {
+                if (window.localStorage.getItem('message')) {
+                    Quasar.Notify.create({
+                        message: window.localStorage.getItem('message'),
+                        color: 'positive',
+                        icon: 'check_circle_outline'
+                    });
+                    window.localStorage.removeItem('message');
+                }
+                if (window.localStorage.getItem('error-message')) {
+                    Quasar.Notify.create({
+                        message: window.localStorage.getItem('error-message'),
+                        color: 'negative',
+                        icon: 'error_outline'
+                    });
+                    window.localStorage.removeItem('error-message');
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+

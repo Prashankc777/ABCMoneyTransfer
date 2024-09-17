@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+    <link href="@string.Format("https://cdn.jsdelivr.net/npm/@mdi/font@^5.0.0/css/materialdesignicons.min.css")" rel="stylesheet" type="text/css">
+    <link href="~/css/app.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.min.css" rel="stylesheet" type="text/css">
+    @RenderSection("styles", false)
+</head>
+
+<body>
+    <div id="q-app" v-cloak>
+        <q-layout view="hHh lpR fFf">
+            <q-header elevated class="bg-primary text-white">
+                <q-toolbar>
+                    <q-btn dense flat round icon="menu" v-on:click="left = !left"></q-btn>
+                    <q-toolbar-title>
+                        Parking Management
+                    </q-toolbar-title>
+                    <q-btn-dropdown outline flat class="text-white" color="primary" icon="mdi-account-cog">
+                        <q-list>
+                            <q-item clickable v-close-popup v-on:click="openPasswordResetDialog">
+                                <q-item-section>
+                                    <q-item-label>Change Password</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item clickable v-close-popup v-on:click="onLogoutClicked">
+                                <q-item-section>
+                                    <q-item-label>Logout</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-btn-dropdown>
+                </q-toolbar>
+            </q-header>
+            <q-dialog v-model="passwordResetDialog" persistent position="top">
+                <q-card square style="width: 600px; height: 310px; max-width: 50vw;">
+                    <q-toolbar>
+                        <q-toolbar-title> Change Password</q-toolbar-title>
+                        <q-btn color="primary" flat round dense icon="close" v-close-popup />
+                    </q-toolbar>
+                    <q-form v-on:submit="onSubmit">
+                        <q-card-section>
+                            <div class="row">
+                                <div class="col-xs-12 col-md-12">
+                                    <q-input square dense outlined
+                                             v-model="passwordResetModel.oldPassword "
+                                             label="Old Password *"
+                                             type="password"
+                                             lazy-rules
+                                             :rules="[ val => val && val.length > 0 || ' Old password is Required']">
+                                    </q-input>
+                                    <q-input square dense outlined
+                                             v-model="passwordResetModel.password "
+                                             label="Password *"
+                                             type="password"
+                                             lazy-rules
+                                             :rules="[ val => val && val.length > 0 || ' Password is Required']">
+                                    </q-input>
+                                    <q-input square dense outlined
+                                             v-model="passwordResetModel.confirmPassword "
+                                             label="Confirm Password *"
+                                             lazy-rules
+                                             type="password"
+                                             :rules="[ val => val && val.length > 0 || 'Confirm Password is Required']">
+                                    </q-input>
+                                </div>
+                            </div>
+                            <div>
+                                <q-btn label="Submit" :loading="buttonSubmitting" type="submit" color="primary" />
+                            </div>
+                        </q-card-section>
+                    </q-form>
+                </q-card>
+            </q-dialog>
+            <q-drawer show-if-above v-model="left" side="left" bordered>
+                <q-list>
+                    @if (User.IsInRole("Admin"))
+                    {
+
+
+                        <q-item clickable tag="a" href="/">
+                            <q-item-section avatar>
+                                <q-icon color="primary" name="dashboard" />
+                            </q-item-section>
+                            <q-item-section>Dashboard</q-item-section>
+
+                        </q-item>
+                        <q-expansion-item v-model="expanded" expand-separator
+                                          icon="settings"
+                                          label="Setting"
+                                          group="somegroup" dense header-class="text-primary">
+                            <q-list>
+                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/setting/users">
+                                    <q-item-section>User Management</q-item-section>
+                                </q-item>
+                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/setting/parking-types">
+                                    <q-item-section>Parking Type</q-item-section>
+                                </q-item>
+                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/setting/parking-rules">
+                                    <q-item-section>Parking Rule</q-item-section>
+                                </q-item>
+
+                            </q-list>
+                        </q-expansion-item>
+                        <q-item clickable tag="a" href="/blocks">
+                            <q-item-section avatar>
+                                <q-icon color="primary" name="add_road" />
+                            </q-item-section>
+                            <q-item-section>Block Management</q-item-section>
+
+                        </q-item>
+                        <q-item clickable tag="a" href="/slots">
+                            <q-item-section avatar>
+                                <q-icon color="primary" name="space_bar" />
+                            </q-item-section>
+                            <q-item-section>Slot Management</q-item-section>
+
+                        </q-item>
+                    }
+                    @if (User.IsInRole("Admin") || (User.IsInRole("User")))
+                    {
+                        <q-item clickable tag="a" href="/bookings">
+                            <q-item-section avatar>
+                                <q-icon color="primary" name="event_seat" />
+                            </q-item-section>
+                            <q-item-section>Booking Management</q-item-section>
+                        </q-item>
+                        <q-item clickable tag="a" href="/parking-management">
+                            <q-item-section avatar>
+                                <q-icon color="primary" name="mdi-parking" />
+                            </q-item-section>
+                            <q-item-section>Parking Management</q-item-section>
+                        </q-item>
+                        <q-expansion-item v-model="expanded" expand-separator
+                                          icon="report"
+                                          label="Report"
+                                          group="somegroup" dense header-class="text-primary">
+                            <q-list>
+                                <q-item style="padding-left: 72px;" dense clickable v-close-popup tag="a" href="/report/parking">
+                                    <q-item-section>Parking Report</q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-expansion-item>
+                    }
+
+
+                </q-list>
+            </q-drawer>
+            <q-page-container>
+                @RenderBody()
+            </q-page-container>
+        </q-layout>
+    </div>
+    <script>
+        window.quasarConfig = {
+            brand: {
+                //primary: '#e46262',
+            },
+            notify: {},
+            dialog: {},
+            loading: {},
+            loadingBar: {},
+        }
+    </script>
+    <script src="@string.Format("https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js")"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="~/js/index.bundle.js"></script>
+    <script src="~/js/global.js"></script>
+    <script>
+        new Vue({
+            el: '#q-app',
+            data: function () {
+                return {
+                    left: false,
+                    value: true,
+                    expanded: true,
+                    passwordResetModel: {
+                        password: '',
+                        confirmPassword: '',
+                        oldPassword: ''
+                    },
+                    passwordResetDialog: false,
+                    buttonSubmitting: false
+
+                }
+            },
+            methods: {
+                onLogoutClicked: async function () {
+                    let vm = this;
+                    try {
+                        let response = await axios.post("/api/auth/logout", {});
+                        vm.$showErrorMessage(response.data);
+                        vm.$redirect("/");
+                    } catch (ex) {
+                        vm.$handleError(ex);
+                    }
+                },
+                onSubmit: async function () {
+                    let vm = this;
+                    vm.$showLoader();
+                    try {
+                        let response = await axios.post("/api/auth/change-password", vm.passwordResetModel);
+                        vm.$hideLoader();
+                        vm.$showErrorMessage(response.data);
+                        vm.$redirect("/");
+                    } catch (e) {
+                        vm.$hideLoader();
+                        vm.$handleError(e);
+                    }
+                },
+                openPasswordResetDialog() {
+                    let vm = this;
+                    vm.passwordResetDialog = true;
+                    vm.passwordResetModel.password = null;
+                    vm.passwordResetModel.confirmPassword = null;
+                }
+            },
+            mounted() {
+                if (window.localStorage.getItem('message')) {
+                    Quasar.Notify.create({
+                        message: window.localStorage.getItem('message'),
+                        color: 'positive',
+                        icon: 'check_circle_outline'
+                    });
+                    window.localStorage.removeItem('message');
+                }
+                if (window.localStorage.getItem('error-message')) {
+                    Quasar.Notify.create({
+                        message: window.localStorage.getItem('error-message'),
+                        color: 'negative',
+                        icon: 'error_outline'
+                    });
+                    window.localStorage.removeItem('error-message');
+                }
+            }
+        })
+    </script>
+    <script>
+        axios.interceptors.response.use(function (response) {
+            return response;
+        }, function (error) {
+            if (error.response.status == 401) {
+                window.location.href = "/";
+            }
+            else if (error.response.status == 400) {
+
+            }
+            else {
+                Quasar.Notify.create({
+                    message: 'There is some error while fetching network request.',
+                    color: 'negative',
+                    icon: 'error_outline'
+                });
+            }
+            return Promise.reject(error);
+        });
+    </script>
+    @RenderSection("scripts", false)
+</body>
+</html>
