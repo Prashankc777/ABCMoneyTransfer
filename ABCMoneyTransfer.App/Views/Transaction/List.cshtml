@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "User Management";
+}
+
+<div id="app" v-pre v-cloak>
+    <q-card flat>
+        <q-toolbar dense class="bg-grey-2">
+            <q-toolbar-title>
+                Transactions
+            </q-toolbar-title>
+            <q-btn type="a" href="/transaction/new" icon="mdi-plus" label="New" size="sm" color="primary"></q-btn>
+        </q-toolbar>
+        <q-separator></q-separator>
+        <q-card-section>
+            <q-table dense class="data-table" dense :data="transactions" square row-key="name" :pagination="pagination" flat bordered>
+                <q-tr class="disable-hover" slot="header" slot-scope="props">
+                    <q-th class="text-left">Sender</q-th>
+                    <q-th class="text-center">Receiver</q-th>
+                    <q-th class="text-center">Transferred Amount (MYR)</q-th>
+                    <q-th class="text-center">Exchange Rate</q-th>
+                    <q-th class="text-center">Amount (NPR)</q-th>
+                    <q-th class="text-center">Date</q-th>
+                </q-tr>
+                <q-tr slot="body" slot-scope="props" :props="props">
+                    <q-td class="text-left">{{ props.row.senderGivenName }}</q-td>
+                    <q-td class="text-center">{{ props.row.receiverGivenName }}</q-td>
+                    <q-td class="text-center">{{ props.row.transferAmountMyr }}</q-td>
+                    <q-td class="text-center">{{ props.row.exchangeRate }}</q-td>
+                    <q-td class="text-center">{{ props.row.amount }}</q-td>
+                    <q-td class="text-center">{{ $formatDate(props.row.createdDate , "YYYY-MM-DD HH:mm:ss") }}</q-td>
+                </q-tr>
+            </q-table>
+        </q-card-section>
+    </q-card>
+</div>
+
+@section scripts {
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    transactions: [],
+                    pagination: {
+                        rowsPerPage: 50
+                    },
+                    buttonSubmitting: false,
+                    users: [],
+                };
+            },
+            methods: {
+                getAll: async function () {
+                    const vm = this;
+                    try {
+                        let response = await axios.get("/api/transactions");
+                        vm.transactions = response.data;
+                    } catch (ex) {
+                        vm.$handleError(ex);
+                    }
+                },
+                
+                
+            },
+            async mounted() {
+                let vm = this;
+                vm.$showLoader();
+                await vm.getAll();
+                vm.$hideLoader();
+            }
+        });
+    </script>
+}

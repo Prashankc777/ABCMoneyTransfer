@@ -6,25 +6,31 @@
     <q-card flat>
         <q-toolbar dense class="bg-grey-2">
             <q-toolbar-title>
-              Forex Rates
+                Dashboard
             </q-toolbar-title>
         </q-toolbar>
         <q-separator></q-separator>
         <q-card-section>
-            <q-table dense class="data-table" dense :data="users" square row-key="name" :pagination="pagination" flat bordered>
-                <q-tr class="disable-hover" slot="header" slot-scope="props">
-                    <q-th class="text-left">Currency</q-th>
-                    <q-th class="text-center">Iso3</q-th>
-                    <q-th class="text-center">Buy</q-th>
-                    <q-th class="text-center">Sell</q-th>
-                </q-tr>
-                <q-tr slot="body" slot-scope="props" :props="props">
-                    <q-td class="text-left">{{ props.row.currency.name }}</q-td>
-                    <q-td class="text-center">{{ props.row.currency.iso3 }}</q-td>
-                    <q-td class="text-center">{{ props.row.buy }}</q-td>
-                    <q-td class="text-center">{{ props.row.sell }}</q-td>
-                </q-tr>
-            </q-table>
+            <div class="row q-mt-sm">
+                <div class="col-md-12">
+                    <q-table :title="title" dense class="data-table" dense :data="forexRates" square row-key="name" :pagination="pagination" flat bordered>
+                        <q-tr class="disable-hover" slot="header" slot-scope="props">
+                            <q-th class="text-left">Currency</q-th>
+                            <q-th class="text-center">Iso3</q-th>
+                            <q-th class="text-center">Buy</q-th>
+                            <q-th class="text-center">Sell</q-th>
+                        </q-tr>
+                        <q-tr slot="body" slot-scope="props" :props="props">
+                            <q-td class="text-left">{{ props.row.currency.name }}</q-td>
+                            <q-td class="text-center">{{ props.row.currency.iso3 }}</q-td>
+                            <q-td class="text-center">{{ props.row.buy }}</q-td>
+                            <q-td class="text-center">{{ props.row.sell }}</q-td>
+                        </q-tr>
+                    </q-table>
+                </div>
+
+            </div>
+
         </q-card-section>
     </q-card>
 </div>
@@ -35,22 +41,11 @@
             el: '#app',
             data: function () {
                 return {
-                    users: [],
+                    forexRates: [],
                     pagination: {
                         rowsPerPage: 50
                     },
-                    buttonSubmitting: false,
-                    insertDialog: false,
-                    roles: [],
-                    user: {
-                        id: "",
-                        username: "",
-                        password: "",
-                        confirmPassword: "",
-                        name: "",
-                        role: ""
-                    },
-                    selectedRole: null,
+                    title: ""
                 };
             },
             methods: {
@@ -58,7 +53,7 @@
                     const vm = this;
                     try {
                         let response = await axios.get("/api/general/forex");
-                        vm.users = response.data;
+                        vm.forexRates = response.data;
                     } catch (ex) {
                         vm.$handleError(ex);
                     }
@@ -137,6 +132,8 @@
                 let vm = this;
                 vm.$showLoader();
                 await vm.getAll();
+                const todaysDate = new Date().toISOString().slice(0, 10);
+                vm.title = `Forex Rate - ${todaysDate}`
                 vm.$hideLoader();
             }
         });

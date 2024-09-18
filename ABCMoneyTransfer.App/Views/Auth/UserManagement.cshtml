@@ -195,14 +195,6 @@
 
 
                 },
-                openUpdateDialog: function (block) {
-                    const vm = this;
-                    vm.updateDialog = true;
-                    vm.block.id = block.id;
-                    vm.block.name = block.name;
-                    vm.block.alias = block.alias;
-                    vm.block.isActive = block.isActive;
-                },
                 onDelete: function (id, name) {
                     let vm = this;
                     Quasar.Dialog.create({

@@ -30,4 +30,8 @@ public partial class User
     public string? ModifiedBy { get; set; }
 
     public virtual Country Country { get; set; } = null!;
+
+    public virtual ICollection<Transaction> TransactionReceivers { get; set; } = new List<Transaction>();
+
+    public virtual ICollection<Transaction> TransactionSenders { get; set; } = new List<Transaction>();
 }

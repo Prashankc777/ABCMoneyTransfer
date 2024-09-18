@@ -27,6 +27,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<Transaction> Transactions { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -83,6 +85,31 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.ToTable("Transaction");
+
+            entity.Property(e => e.AccountNumber).HasMaxLength(250);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.BankName).HasMaxLength(64);
+            entity.Property(e => e.CreatedBy).HasMaxLength(450);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.ExchangeRate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TransferAmountMyr)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TransferAmountMYR");
+
+            entity.HasOne(d => d.Receiver).WithMany(p => p.TransactionReceivers)
+                .HasForeignKey(d => d.ReceiverId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Transaction_User1");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.TransactionSenders)
+                .HasForeignKey(d => d.SenderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Transaction_User");
         });
 
         modelBuilder.Entity<User>(entity =>

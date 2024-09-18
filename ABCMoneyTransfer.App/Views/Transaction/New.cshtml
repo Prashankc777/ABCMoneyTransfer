@@ -1,0 +1,160 @@
+﻿@{
+    ViewData["Title"] = "New User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="app" v-pre v-cloak>
+    <q-card flat>
+        <q-toolbar dense class="bg-grey-2">
+            <q-toolbar-title>
+                New Transaction
+            </q-toolbar-title>
+            <q-btn type="a" href="/user/list" icon="list" label="User List" size="sm" color="primary"></q-btn>
+        </q-toolbar>
+        <q-card-section>
+            <q-form v-on:submit="onSubmit">
+                <div class="row q-col-gutter-md">
+                    <div class="col-sm-4">
+                        <q-select label="Sender *"
+                                  v-model="transaction.SenderId"
+                                  :options="senders"
+                                  clearable
+                                  option-label="givenName"
+                                  emit-value
+                                  map-options
+                                  behavior="menu"
+                                  option-value="id"
+                                  input-debounce="0"
+                                  square dense outlined
+                                  lazy-rules
+                                  :rules="[val=>val !== null || 'required']">
+                        </q-select>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-select label="Receiver *"
+                                  v-model="transaction.ReceiverId"
+                                  :options="receivers"
+                                  clearable
+                                  option-label="givenName"
+                                  emit-value
+                                  map-options
+                                  behavior="menu"
+                                  option-value="id"
+                                  input-debounce="0"
+                                  square dense outlined
+                                  lazy-rules
+                                  :rules="[val=>val !== null || 'required']">
+                        </q-select>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Transfer Amount (Myr) *" v-model="transaction.TransferAmountMyr" square dense outlined></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Exchange Rate" readonly v-model="transaction.ExchangeRate" square dense outlined></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Amount" readonly v-model="transaction.Amount" square dense outlined></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Bank * " v-model="transaction.bankName" square dense outlined lazy-rules
+                                 :rules="[val=>val !== null || 'required']"></q-input>
+                    </div>
+                    <div class="col-sm-4">
+                        <q-input label="Account Number * " v-model="transaction.AccountNumber" square dense outlined lazy-rules
+                                 :rules="[val=>val !== null || 'required']"></q-input>
+                    </div>
+
+                </div>
+                <div class="row q-mt-md">
+                    <q-btn type="submit" label="Submit" :loading="userPosting" color="primary"></q-btn>
+                </div>
+
+            </q-form>
+        </q-card-section>
+    </q-card>
+</div>
+
+@section scripts {
+    <script>
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    userPosting: false,
+                    senders: [],
+                    receivers: [],
+                    transaction: {
+                        SenderId: null,
+                        ReceiverId: null,
+                        TransferAmountMyr: null,
+                        ExchangeRate: null,
+                        Amount: null,
+                        BankName: null,
+                        AccountNumber: null
+                    },
+                    selectedSender: null,
+                    selectedReceiver: null
+                };
+            },
+            methods: {
+                onSubmit: async function () {
+                    let vm = this;
+                    try {
+                        vm.userPosting = true;
+                        let response = await axios.post("/api/transaction/insert", vm.transaction);
+                        vm.userPosting = false;
+                        vm.$showSuccessMessage(response.data);
+                        vm.$redirect("/transaction/list");
+                    } catch (ex) {
+                        vm.userPosting = false;
+                        vm.$handleError(ex);
+                    }
+                },
+                getAll: async function () {
+                    const vm = this;
+                    try {
+                        let response = await axios.get("/api/users");
+                        if (Array.isArray(response.data)) {
+                            vm.senders = response.data.filter(item => item.isSender);
+                            vm.receivers = response.data.filter(item => !item.isSender);
+                        } else {
+                            vm.senders = [];
+                            vm.receivers = [];
+                        }
+                    } catch (ex) {
+                        console.error('An error occurred:', ex);
+                        vm.$handleError(ex);
+                    }
+                },
+                getMyrExchangeRate: async function () {
+                    const vm = this;
+                    try {
+                        let response = await axios.get("/api/general/forex?iso3=MYR");
+                        vm.transaction.ExchangeRate = response.data
+                    } catch (ex) {
+                        console.error('An error occurred:', ex);
+                        vm.$handleError(ex);
+                    }
+                }
+            },
+            watch: {
+                'transaction.TransferAmountMyr': function (newValue) {
+                    if (this.transaction.ExchangeRate && newValue) {
+                        this.transaction.Amount = (newValue * this.transaction.ExchangeRate).toFixed(2);
+                    } else {
+                        this.transaction.Amount = null;
+                    }
+                }
+            },
+            async mounted() {
+                const vm = this;
+                vm.$showLoader();
+                await vm.getAll();
+                await vm.getMyrExchangeRate();
+                vm.$hideLoader();
+            }
+        });
+    </script>
+}
+
+

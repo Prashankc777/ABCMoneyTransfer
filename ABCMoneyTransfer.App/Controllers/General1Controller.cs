@@ -23,15 +23,14 @@ namespace ABCMoneyTransfer.App.Controllers
         }
 
         [HttpGet, Route("api/general/forex")]
-        public async Task<IActionResult> GetForexData(string? startDate = null, string? endDate = null)
+        public async Task<IActionResult> GetForexData(string? startDate = null, string? endDate = null, string? iso3 = null)
         {
-            
             var nepaliToday = GeneralUtility.GetCurrentNepaliDateTime();
             startDate = startDate ?? nepaliToday.ToString("yyyy-MM-dd");
             endDate = endDate ?? nepaliToday.ToString("yyyy-MM-dd");
+
             try
             {
-            
                 if (!DateOnly.TryParseExact(startDate, "yyyy-MM-dd", out var parsedStartDate))
                 {
                     return BadRequest("Invalid start date format. Please use 'yyyy-MM-dd'.");
@@ -40,20 +39,38 @@ namespace ABCMoneyTransfer.App.Controllers
                 {
                     return BadRequest("Invalid end date format. Please use 'yyyy-MM-dd'.");
                 }
+
                 var data = await forexService.GetDate(parsedStartDate, parsedEndDate);
                 if (data == null)
                 {
                     return NotFound("Forex data not found for the specified dates.");
                 }
-                return Ok(data.Data.Payload.SelectMany(x=>x.Rates));
+
+                var rates = data.Data.Payload.SelectMany(x => x.Rates).ToList();
+
+                if (string.IsNullOrEmpty(iso3))
+                {
+                    return Ok(rates);
+                }
+                else
+                {
+                  //  var filteredRates = rates.Where(x => string.Equals(x.Currency.Iso3, iso3, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                  var filteredRates = rates[14];
+
+                    //if (filteredRates.Count == 0)
+                    //{
+                    //    return NotFound($"No forex data found for the currency code: {iso3}.");
+                    //}
+
+                    return Ok(filteredRates.Buy);
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-
 
     }
 }
