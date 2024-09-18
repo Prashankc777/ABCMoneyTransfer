@@ -3,10 +3,12 @@ using ABCMoneyTransfer.Data.Entities;
 using ABCMoneyTransfer.Data.Repositories;
 using ABCMoneyTransfer.Data.Utilities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ABCMoneyTransfer.App.Controllers
 {
+    [Authorize]
     public class TransactionController(ITransactionRepository transactionRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, ILogger<TransactionController> logger)
         : Controller
 

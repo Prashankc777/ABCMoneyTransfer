@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using ABCMoneyTransfer.Data.Exceptions;
 
 namespace ABCMoneyTransfer.Data.Utilities
 {
@@ -12,13 +13,10 @@ namespace ABCMoneyTransfer.Data.Utilities
     {
         public static string GetUsernameFromClaim(IHttpContextAccessor httpContextAccessor)
         {
-            var user = httpContextAccessor.HttpContext.User;
+            var user = (httpContextAccessor.HttpContext?.User) ?? throw new GeneralException("No data found in claim.");
+            if (user.Claims.All(x => x.Type != ClaimTypes.Name)) throw new GeneralException("No username in claim.");
 
-            if (user == null) throw new Exception("No data found in claim.");
-
-            if (user.Claims.All(x => x.Type != ClaimTypes.Name)) throw new Exception("No username in claim.");
-
-            return user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).Value;
+            return user.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
         }
 
         public static DateTime GetCurrentNepaliDateTime()

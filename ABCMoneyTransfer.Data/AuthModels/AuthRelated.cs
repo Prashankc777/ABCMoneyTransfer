@@ -19,21 +19,21 @@ namespace ABCMoneyTransfer.Data.AuthModels
 
     public class LoginVM
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string Username { get; set; } = null!;
+        public string Password { get; set; } = null!;
     }
 
     public class CreateRole
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class ResetPasswordModel
     {
-        public string OldPassword { get; set; }
-        public string Password { get; set; }
-        public string ConfirmPassword { get; set; }
-        public int UserId { get; set; }
+        public string OldPassword { get; set; } = null!;
+        public string Password { get; set; } = null!;
+        public string ConfirmPassword { get; set; } = null!;
+        public int UserId { get; set; } 
     }
 
     public class Users

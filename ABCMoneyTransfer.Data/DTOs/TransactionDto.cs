@@ -6,9 +6,9 @@ public class TransactionDto
 {
     public int Id { get; set; }
 
-    public string SenderGivenName { get; set; }
+    public string SenderGivenName { get; set; } = null!;
 
-    public string ReceiverGivenName { get; set; }
+    public string ReceiverGivenName { get; set; } = null!;
 
     public decimal TransferAmountMyr { get; set; }
 

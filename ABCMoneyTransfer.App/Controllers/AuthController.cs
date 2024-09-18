@@ -1,4 +1,5 @@
 ﻿using ABCMoneyTransfer.Data.AuthModels;
+using ABCMoneyTransfer.Data.Exceptions;
 using ABCMoneyTransfer.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,18 +31,19 @@ namespace ABCMoneyTransfer.App.Controllers
         {
             try
             {
+
                 if (string.IsNullOrEmpty(model.Username))
-                    throw new Exception("The Username cannot be empty.");
+                    throw new GeneralException("The Username cannot be empty.");
 
                 if (string.IsNullOrEmpty(model.Password))
-                    throw new Exception("The Password cannot be empty.");
+                    throw new GeneralException("The Password cannot be empty.");
 
                 var user = await authRepository.GetUserByUsername(model.Username);
 
                 if (user == null)
                 {
                     logger.LogError($"Error! Failed to retrieve user with username {model.Username}.");
-                    throw new Exception("The Username or Password is Wrong.");
+                    throw new GeneralException("The Username or Password is Wrong.");
                 }
 
                 var result = await authRepository.Login(model);
@@ -49,7 +51,7 @@ namespace ABCMoneyTransfer.App.Controllers
                 if (!result)
                 {
                     logger.LogError($"Error! Failed to login with credentials. Username {model.Username} & Password {model.Password}");
-                    throw new Exception("The Username or Password is Wrong.");
+                    throw new GeneralException("The Username or Password is Wrong.");
                 }
                 
                 return Ok("/");
@@ -82,7 +84,7 @@ namespace ABCMoneyTransfer.App.Controllers
             {
                 if (string.IsNullOrEmpty(registerUser.UserId))
                 {
-                    throw new Exception("Invalid User");
+                    throw new GeneralException("Invalid User");
                 }
                 await authRepository.UnRegisterUser(registerUser.UserId);
                 return Ok("User has been deleted");

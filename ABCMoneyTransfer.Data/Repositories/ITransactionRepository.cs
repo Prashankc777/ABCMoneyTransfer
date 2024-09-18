@@ -11,18 +11,16 @@ public interface ITransactionRepository
 
 public class TransactionRepository(AppDbContext appDbContext) : ITransactionRepository
 {
-    private readonly AppDbContext _appDbContext = appDbContext;
-
     public async Task Insert(Transaction transaction)
     {
-        await _appDbContext.Transactions.AddAsync(transaction);
-        await _appDbContext.SaveChangesAsync();
+        await appDbContext.Transactions.AddAsync(transaction);
+        await appDbContext.SaveChangesAsync();
         
     }
 
     public async Task<IEnumerable<Transaction>> GetAll()
     {
-        return await _appDbContext.Transactions
+        return await appDbContext.Transactions
             .Select(x=> new Transaction()
             {
                 Id = x.Id,
