@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
+using ABCMoneyTransfer.App.Services;
 using ABCMoneyTransfer.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +11,11 @@ IConfiguration configuration = builder.Configuration;
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddTransient<IForexService, ForexService>();
+builder.Services.AddHttpClient<IForexService, ForexService>();
 builder.Services.AddServicesFromData(configuration);
 builder.Services.AddControllersWithViews();
+
 
 
 var app = builder.Build();

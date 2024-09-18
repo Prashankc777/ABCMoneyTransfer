@@ -8,7 +8,7 @@ public interface IGeneralRepository
     public Task<IEnumerable<T>> GetAllAsync<T>() where T : class;
 }
 
-public class GeneralController(AppDbContext appDbContext) : IGeneralRepository
+public class GeneralRepository(AppDbContext appDbContext) : IGeneralRepository
 {
     public async Task<IEnumerable<T>> GetAllAsync<T>() where T : class
     {

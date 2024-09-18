@@ -53,7 +53,7 @@ namespace ABCMoneyTransfer.Data
 
             services.AddTransient<IAuthRepository, AuthRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<Igenerare, GeneralController>();
+            services.AddTransient<IGeneralRepository, GeneralRepository>();
         }
     }
 }

@@ -22,12 +22,19 @@
                     <q-th class="text-center">Actions</q-th>
                 </q-tr>
                 <q-tr slot="body" slot-scope="props" :props="props">
-                    <q-td class="text-left">{{ props.row.username }}</q-td>
-                    <q-td class="text-center">{{ props.row.name }}</q-td>
-                    <q-td class="text-center">{{ props.row.role }}</q-td>
-
+                    <q-td class="text-left">{{ props.row.givenName }}</q-td>
+                    <q-td class="text-center">{{ props.row.address }}</q-td>
+                    <q-td class="text-center">{{ props.row.countryName }}</q-td>
                     <q-td class="text-center">
-                        <q-btn round size="xs" color="negative" icon="mdi-delete-circle-outline" v-on:click="onDelete(props.row.id, props.row.name)">
+                        <q-icon v-if="props.row.isSender" size="xs" color="positive" name="check_circle_outline"></q-icon>
+                       
+                    </q-td>
+                    <q-td class="text-center">
+                        <q-icon v-if="!props.row.isSender" size="xs" color="positive" name="check_circle_outline"></q-icon>
+                       
+                    </q-td>
+                    <q-td class="text-center">
+                        <q-btn round size="xs" color="negative" icon="mdi-delete-circle-outline" v-on:click="onDelete(props.row.id, props.row.givenName)">
                             <q-tooltip>
                                 Remove
                             </q-tooltip>
@@ -98,7 +105,7 @@
                         persistent: true
                     }).onOk(async () => {
                         try {
-                            var response = await axios.post("/api/auth/unregister", { UserId: id });
+                            var response = await axios.post("/api/user/delete", { id: id }); 
                             vm.$showSuccessMessage(response.data);
                             vm.$reload();
                         } catch (ex) {

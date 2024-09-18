@@ -22,17 +22,36 @@
                         <q-input label="Middle name" v-model="user.middleName" square dense outlined></q-input>
                     </div>
                     <div class="col-sm-4">
-                        <q-input label="last name" v-model="user.middleName" square dense outlined
+                        <q-input label="last name" v-model="user.lastName" square dense outlined
                                  :rules="[ val => val && val.length > 0 || 'Required.']"></q-input>
                     </div>
                     <div class="col-sm-4">
                         <q-input label="Address" v-model="user.address" square dense outlined></q-input>
                     </div>
                     <div class="col-sm-4">
-                        <q-input label="Address" v-model="user.address" square dense outlined></q-input>
+                        <q-select label="Country *"
+                                  v-model="user.countryId"
+                                  :options="countries"
+                                  clearable
+                                  option-label="name"
+                                  emit-value
+                                  map-options
+                                  behavior="menu"
+                                  option-value="id"
+                                  input-debounce="0"
+                                  square dense outlined
+                                  lazy-rules
+                                  :rules="[val=>val !== null || 'required']">
+                        </q-select>
                     </div>
                 </div>
-                <q-btn type="submit" label="Submit" :loading="userPosting" color="primary"></q-btn>
+                <div class="row q-col-md-4">
+                        <q-checkbox dense label="Sender" v-model="user.isSender"></q-checkbox>
+                </div>
+                <div class="row q-mt-md">
+                    <q-btn type="submit" label="Submit" :loading="userPosting" color="primary"></q-btn>
+                </div>
+              
             </q-form>
         </q-card-section>
     </q-card>
@@ -45,8 +64,11 @@
             data: function () {
                 return {
                     userPosting: false,
-                    user: {},
-                    countries : []
+                    user: {
+                        isSender: false
+                    },
+                    countries: [],
+                    selectedCountry: null
                 };
             },
             methods: {
@@ -54,26 +76,33 @@
                     let vm = this;
                     try {
                         vm.userPosting = true;
-                        let response = await axios.post("/api/setting/user/new", vm.user);
+                        let response = await axios.post("/api/user/insert", vm.user);
                         vm.userPosting = false;
                         vm.$showSuccessMessage(response.data);
-                        vm.$redirect("/setting/users");
+                        vm.$redirect("/user/list");
                     } catch (ex) {
                         vm.userPosting = false;
                         vm.$handleError(ex);
                     }
                 },
-                getAllCountries : async function() {
+                getAllCountries: async function () {
                     let vm = this;
-                    try{
-                        let response = awa
-                    }catch(ex){
+                    try {
+                        let response = await axios.get("/api/general/countries");
+                        vm.countries = response.data;
+                    } catch (ex) {
+                        vm.$hideLoader();
                         vm.$handleError(ex);
                     }
                 }
 
             },
             async mounted() {
+                const vm = this;
+                vm.$showLoader();
+                await vm.getAllCountries()
+                vm.$hideLoader();
+
 
             }
         });
