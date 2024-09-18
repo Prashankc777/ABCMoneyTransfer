@@ -67,7 +67,14 @@ public class UserRepository : IUserRepository
 
     public async Task<string> Delete(int id)
     {
+       
+
         User userToDelete = await _appDbContext.Users.FirstAsync(x => x.Id == id);
+
+        if (await _appDbContext.Transactions.AnyAsync(x=>x.SenderId == id || x.ReceiverId == id))
+        {
+            throw new Exception("Transaction has been done cannot delete the user");
+        }
         _appDbContext.Users.Remove(userToDelete);
         await _appDbContext.SaveChangesAsync();
         return userToDelete.GivenName;

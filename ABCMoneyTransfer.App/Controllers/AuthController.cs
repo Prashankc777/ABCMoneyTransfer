@@ -126,5 +126,14 @@ namespace ABCMoneyTransfer.App.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("api/auth/logout")]
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await authRepository.Logout();
+            return Ok("Logout successful!");
+        }
     }
 }
